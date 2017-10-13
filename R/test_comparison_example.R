@@ -40,7 +40,7 @@ for (i in 1:length(trees250sdd)) {
 
 }
 
-pearcor.pow <- length(pearcor.p[pearcor.p < 0.05])/length(trees250sdd)
+essim.pow <- length(essim.p[essim.p < 0.05])/length(trees250sdd)
 quasse.pow <- length(q.p[q.p < 0.05])/length(trees250sdd)
 
 
@@ -80,7 +80,7 @@ for (i in 1:length(trees250nsdd)) {
 
 }
 
-pearcor.fdr <- length(pearcor.p[pearcor.p < 0.05])/length(trees250nsdd)
+essim.fdr <- length(essim.p[essim.p < 0.05])/length(trees250nsdd)
 quasse.fdr <- length(q.p[q.p < 0.05])/length(trees250nsdd)
 
 
@@ -125,6 +125,6 @@ for (i in 1:length(trees250sdd)) {
 
 }
 
-pearcor.fdrb <- length(pearcor.p[pearcor.p < 0.05])/length(trees250nsdd)
+essim.fdrb <- length(essim.p[essim.p < 0.05])/length(trees250nsdd)
 quasse.fdrb <- length(q.p[q.p < 0.05])/length(trees250nsdd)
 

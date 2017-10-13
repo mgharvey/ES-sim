@@ -24,9 +24,9 @@ USAGE
 
 Requirements:
 
-ape (https://cran.r-project.org/web/packages/ape/)
+* ape (https://cran.r-project.org/web/packages/ape/)
 
-mvtnorm (https://cran.r-project.org/web/packages/mvtnorm/)
+* mvtnorm (https://cran.r-project.org/web/packages/mvtnorm/)
 
 For now, simply download essim.R, then load it in R:
 
