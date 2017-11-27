@@ -22,7 +22,7 @@ You can also provide a link to this repository if desired:
 USAGE
 --------
 
-Code used for simulating and analyzing the data in Harvey and Rabosky (in revision) are included in the directory ./R/ and the simulated datasets examined are in the directory ./data/.
+Code used for simulating and analyzing the data in Harvey and Rabosky (in press) are included in the directory ./R/ and the simulated datasets examined are in the directory ./data/.
 
 Requirements:
 
