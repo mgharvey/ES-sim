@@ -26,11 +26,11 @@ Code used for simulating and analyzing the data in Harvey and Rabosky (in revisi
 
 Requirements:
 
-* ape (https://cran.r-project.org/web/packages/ape/)
+* ape (https://cran.r-project.org/web/packages/ape/) 
 
 * mvtnorm (https://cran.r-project.org/web/packages/mvtnorm/)
 
-For now, simply download essim.R from the ./R/ directory of this repository, then load it in R:  
+For now, simply download essim.R from the ./R/ directory of this repository, then load it in R:
 
 ```
 source("essim.R")
