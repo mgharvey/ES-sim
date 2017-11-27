@@ -26,7 +26,7 @@ Code used for simulating and analyzing the data in Harvey and Rabosky (in revisi
 
 Requirements:
 
-* ape (https://cran.r-project.org/web/packages/ape/) 
+* ape (https://cran.r-project.org/web/packages/ape/)
 
 * mvtnorm (https://cran.r-project.org/web/packages/mvtnorm/)
 
