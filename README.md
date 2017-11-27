@@ -30,7 +30,7 @@ Requirements:
 
 * mvtnorm (https://cran.r-project.org/web/packages/mvtnorm/)
 
-For now, simply download essim.R from the ./R/ directory of this repository, then load it in R:
+For now, simply download essim.R from the ./R/ directory of this repository, then load it in R: 
 
 ```
 source("essim.R")
