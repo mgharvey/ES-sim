@@ -1,8 +1,7 @@
-essim_olsr2 <- function(phy, trait, a = 0.5, nsim = 1000, is) {
+essim_olsslope <- function(phy, trait, a = 0.5, nsim = 1000, is) {
 	
 	require(ape)
-	require(caper)
-	require(geiger)
+	require(mvtnorm)
 
 	if(missing(is)) { # If inverse splits statistics not provided, calculate it
 		rootnode <- length(phy$tip.label) + 1
@@ -22,33 +21,33 @@ essim_olsr2 <- function(phy, trait, a = 0.5, nsim = 1000, is) {
 	names(is) <- phy$tip.label
 	}
 	
-	# Make phylo comparative data object with trait and inverse splits stat for each species
-	dframe <- data.frame(names(trait), trait, log(is[as.vector(names(trait))]))
-	colnames(dframe) <- c("species", "trait", "invsplits")
-	data <- comparative.data(data=dframe, phy=phy, names.col="species")
+	is <- log(is[phy$tip.label]) # log transform
+	trait <- trait[phy$tip.label]
 
-	# Fit Brownian motion model to get diffusion rate and root state estimates using GEIGER
-	q.trait <- fitContinuous(data$phy, trait, model="BM")
-	rate <- q.trait$opt$sigsq
-	root <- q.trait$opt$z0
-	
-	# PGLS of correlation between inverse splits statistic and trait using Caper
-	res <- lm(invsplits ~ trait, data=dframe)
+	# OLS of correlation between inverse splits statistic and trait using Caper
+	res <- lm(is ~ trait)
 
+	# Fit Brownian motion model to get diffusion rate and root state estimates
+	vv <- vcv.phylo(as.phylo(phy))
+	onev <- matrix(rep(1, length(trait)), nrow=length(trait), ncol=1)
+	root <- as.vector(solve(t(onev)%*% solve(vv) %*% onev) %*% (t(onev)%*% solve(vv) %*% trait))
+	rate <- as.vector((t(trait-root) %*% solve(vv) %*% (trait-root))/length(trait))
+	?as.phylo()
 	# Brownian simulations 
-	vv <- vcv.phylo(as.phylo(data$phy))
 	sims <- t(rmvnorm(nsim, sigma=rate*vv))
 	rownames(sims) <- rownames(vv)
 		
 	# OLS of simulated datasets
-	simdf <- data.frame(rownames(sims), log(is[as.vector(rownames(sims))]), sims[,1:nsim])
+	simdf <- data.frame(rownames(sims), is[as.vector(rownames(sims))], sims[,1:nsim])
 	colnames(simdf)[1] <- "species"
 	colnames(simdf)[2] <- "invsplits"
 	vars <- simdf[,3:(nsim+2)]
-	sim.r <- sapply(vars, function(x) summary(lm(invsplits ~ x, data = simdf))$r.squared)
+	sim.res <- sapply(vars, function(x) summary(lm(invsplits ~ x, data = simdf))$coefficients)
+	sim.r <- sim.res[2,]
+	sim.p <- sim.res[8,]
 	
 	# Calculate the two-tailed p value
-	corr <- summary(res)$r.squared
+	corr <- summary(res)$coefficients[2,1]
 	upper <- length(sim.r[sim.r >= corr])/nsim
 	lower <- length(sim.r[sim.r <= corr])/nsim
 	pval <- 2*min(c(upper,lower)) # Remove "2" for one-tailed

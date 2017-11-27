@@ -1,8 +1,7 @@
 essim_kendall <- function(phy, trait, nsim = 1000, is) {
 	
 	require(ape)
-	require(caper)
-	require(geiger)
+	require(mvtnorm)
 
 	if(missing(is)) { # If inverse splits statistics not provided, calculate it
 		rootnode <- length(phy$tip.label) + 1
@@ -22,26 +21,24 @@ essim_kendall <- function(phy, trait, nsim = 1000, is) {
 	names(is) <- phy$tip.label
 	}
 	
-	# Make phylo comparative data object with trait and inverse splits stat for each species
-	dframe <- data.frame(names(trait), trait, log(is[as.vector(names(trait))]))
-	colnames(dframe) <- c("species", "trait", "invsplits")
-	data <- comparative.data(data=dframe, phy=phy, names.col="species")
-
-	# Fit Brownian motion model to get diffusion rate and root state estimates using GEIGER
-	q.trait <- fitContinuous(data$phy, trait, model="BM")
-	rate <- q.trait$opt$sigsq
-	root <- q.trait$opt$z0
+	is <- log(is[phy$tip.label]) # log transform
+	trait <- trait[phy$tip.label]
 	
-	# Pearson's correlation between splits statistic and trait
-	res <- cor.test(data$data$invsplits, data$data$trait, method="kendall")
+	# Kendall's correlation between splits statistic and trait
+	res <- cor.test(is, trait, method="kendall")
 
+	# Fit Brownian motion model to get diffusion rate and root state estimates
+	vv <- vcv.phylo(as.phylo(phy))
+	onev <- matrix(rep(1, length(trait)), nrow=length(trait), ncol=1)
+	root <- as.vector(solve(t(onev)%*% solve(vv) %*% onev) %*% (t(onev)%*% solve(vv) %*% trait))
+	rate <- as.vector((t(trait-root) %*% solve(vv) %*% (trait-root))/length(trait))
+	
 	# Brownian simulations 
-	vv <- vcv.phylo(as.phylo(data$phy))
 	sims <- t(rmvnorm(nsim, sigma=rate*vv))
 	rownames(sims) <- rownames(vv)
 		
 	# Kendall's correlations of simulated datasets
-	sim.r <- sapply(1:nsim, function(x) cor.test(log(is[as.vector(rownames(sims))]), sims[,x], method="kendall")$estimate)
+	sim.r <- sapply(1:nsim, function(x) cor.test(is[as.vector(rownames(sims))], sims[,x], method="kendall")$estimate)
 	
 	# Calculate the two-tailed p value
 	corr <- res$estimate

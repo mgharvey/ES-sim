@@ -1,5 +1,4 @@
 library(diversitree)
-library(phytools)
 
 ### Representative set of 100 simulations with and without trait-dependence ###
 

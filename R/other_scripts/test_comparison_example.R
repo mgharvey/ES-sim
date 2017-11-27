@@ -1,19 +1,18 @@
 library(ape)
-library(caper)
+library(mvtnorm)
 library(diversitree)
-source("essim.R")
-
+source("./R/essim.R")
 
 # Power test
 
-trees250sdd <- read.tree("trees250sdd.txt")
-states250sdd <- read.table("trees250sdd_states.txt", header=TRUE, row.names=1)
+trees250sdd <- read.tree("./data/trees_Core/trees250sdd.txt")
+states250sdd <- read.table("./data/traits_Core/trees250sdd_states.txt", header=TRUE, row.names=1)
 
 essim.p <- vector()
 q.p <- vector()
 
 for (i in 1:length(trees250sdd)) {
-	
+
 	print(i)
 	trait <- states250sdd[,i]
 	names(trait) <- row.names(states250sdd)
@@ -46,8 +45,8 @@ quasse.pow <- length(q.p[q.p < 0.05])/length(trees250sdd)
 
 # FDR test
 
-trees250nsdd <- read.tree("trees250nsdd.txt")
-states250nsdd <- read.table("trees250nsdd_states.txt", header=TRUE, row.names=1)
+trees250nsdd <- read.tree("./data/trees_Core/trees250nsdd.txt")
+states250nsdd <- read.table("./data/traits_Core/trees250nsdd_states.txt", header=TRUE, row.names=1)
 
 essim.p <- vector()
 q.p <- vector()

@@ -1,9 +1,9 @@
 essim_pglsr2 <- function(phy, trait, a = 0.5, nsim = 1000, is) {
 	
 	require(ape)
+	require(mvtnorm)
 	require(caper)
-	require(geiger)
-
+	
 	if(missing(is)) { # If inverse splits statistics not provided, calculate it
 		rootnode <- length(phy$tip.label) + 1
 		is <- numeric(length(phy$tip.label))
@@ -22,26 +22,29 @@ essim_pglsr2 <- function(phy, trait, a = 0.5, nsim = 1000, is) {
 	names(is) <- phy$tip.label
 	}
 	
+	is <- log(is[phy$tip.label]) # log transform
+	trait <- trait[phy$tip.label]
+	
 	# Make phylo comparative data object with trait and inverse splits stat for each species
-	dframe <- data.frame(names(trait), trait, log(is[as.vector(names(trait))]))
+	dframe <- data.frame(names(trait), trait, is[as.vector(names(trait))])
 	colnames(dframe) <- c("species", "trait", "invsplits")
 	data <- comparative.data(data=dframe, phy=phy, names.col="species")
 
-	# Fit Brownian motion model to get diffusion rate and root state estimates using GEIGER
-	q.trait <- fitContinuous(data$phy, trait, model="BM")
-	rate <- q.trait$opt$sigsq
-	root <- q.trait$opt$z0
-	
 	# PGLS of correlation between inverse splits statistic and trait using Caper
 	res <- pgls(invsplits ~ trait, data=data)
 
+	# Fit Brownian motion model to get diffusion rate and root state estimates
+	vv <- vcv.phylo(as.phylo(phy))
+	onev <- matrix(rep(1, length(trait)), nrow=length(trait), ncol=1)
+	root <- as.vector(solve(t(onev)%*% solve(vv) %*% onev) %*% (t(onev)%*% solve(vv) %*% trait))
+	rate <- as.vector((t(trait-root) %*% solve(vv) %*% (trait-root))/length(trait))
+	
 	# Brownian simulations 
-	vv <- vcv.phylo(as.phylo(data$phy))
 	sims <- t(rmvnorm(nsim, sigma=rate*vv))
 	rownames(sims) <- rownames(vv)
 		
 	# PGLS of simulated datasets
-	simdf <- data.frame(rownames(sims), log(is[as.vector(rownames(sims))]), sims[,1:nsim])
+	simdf <- data.frame(rownames(sims), is[as.vector(rownames(sims))], sims[,1:nsim])
 	colnames(simdf)[1] <- "species"
 	colnames(simdf)[2] <- "invsplits"
 	sim.data <- comparative.data(data=simdf, phy=phy, names.col="species")

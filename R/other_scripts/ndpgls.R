@@ -2,8 +2,6 @@ ndpgls <- function(phy, trait, nd) {
 	
 	require(ape)
 	require(caper)
-	require(phytools)
-	require(geiger)
 
 	if(missing(nd)) { # If node depth statistics not provided
 		
@@ -22,7 +20,7 @@ ndpgls <- function(phy, trait, nd) {
 	names(nd) <- phy$tip.label
 			
 	}
-	
+
 	# Make phylo comparative data object with trait and inverse splits stat for each species
 	dframe <- data.frame(names(trait), trait, log(nd[as.vector(names(trait))]))
 	colnames(dframe) <- c("species", "trait", "nd")

@@ -2,8 +2,6 @@ espgls <- function(phy, trait, a = 0.5, is) {
 	
 	require(ape)
 	require(caper)
-	require(phytools)
-	require(geiger)
 
 	if(missing(is)) { # If inverse splits statistics not provided
 		

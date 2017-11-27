@@ -2,15 +2,13 @@ tbpgls <- function(phy, trait) {
 	
 	require(ape)
 	require(caper)
-	require(phytools)
-	require(geiger)
 
 	# Calculate terminal edge lengths
 	n <- length(phy$tip.label)
-	# from Liam Revell:
+	# based on post on Liam Revell's blog:
 	invis <- setNames(phy$edge.length[sapply(1:n, function(x,y) which(y==x), y=phy$edge[,2])], phy$tip.label)
 	tb <- 1/invis
-	
+
 	# Make phylo comparative data object with trait and inverse splits stat for each species
 	dframe <- data.frame(names(trait), trait, log(tb[as.vector(names(trait))]))
 	colnames(dframe) <- c("species", "trait", "tb")
