@@ -44,4 +44,9 @@ essim(phy, trait, nsim = 1000)
 
 where "phy" is your phylogeny, "trait" is your trait information (with names that match the names on the tips of your phylogeny), and "nsim" is the number of simulations used to build the null distribution of trait-speciation associations for significance testing. The test assumptions are the same as for fitting a Brownian motion model to phylogenetic comparative data - that your data fit a multivariate normal distribution with the trait covariance between tips determined by the amount of time they have shared a common ancestor.
 
+DOI
+--------
+
+[![DOI](https://zenodo.org/badge/106715524.svg)](https://zenodo.org/badge/latestdoi/106715524)
+
 
