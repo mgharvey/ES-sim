@@ -42,8 +42,8 @@ essim <- function(phy, trait, nsim = 1000, is) {
 	
 	# Calculate the two-tailed p value
 	corr <- res$estimate
-	upper <- length(sim.r[sim.r >= corr])/nsim
-	lower <- length(sim.r[sim.r <= corr])/nsim
+	upper <- (length(sim.r[sim.r >= corr])+1)/(nsim+1)
+	lower <- (length(sim.r[sim.r <= corr])+1)/(nsim+1)
 	pval <- 2*min(c(upper,lower)) # Remove "2" for one-tailed
 
 	result <- as.vector(c(corr, pval))
