@@ -1,4 +1,4 @@
-essim <- function(phy, trait, nsim = 1000, is) {
+essim <- function(phy, trait, nsim = 1000, is, output.is=FALSE) {
 	
 	require(ape)
 	require(mvtnorm)
@@ -46,8 +46,14 @@ essim <- function(phy, trait, nsim = 1000, is) {
 	lower <- (length(sim.r[sim.r <= corr])+1)/(nsim+1)
 	pval <- 2*min(c(upper,lower)) # Remove "2" for one-tailed
 
-	result <- as.vector(c(corr, pval))
-	names(result) <- c("rho", "P Value")
-	return(result)
+	if(missing(output.is)) { # output just rho and p value
+		result <- as.vector(c(corr, pval))
+		names(result) <- c("rho", "P Value")
+		return(result)
+	} else { # output rho, p value, and list of is values
+		result <- as.vector(c(corr, pval, list(is)))
+		names(result) <- c("rho", "P Value", "is")
+		return(result)		
+	}
 
 }
