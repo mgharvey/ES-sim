@@ -1,12 +1,12 @@
-essim <- function(phy, trait, nsim = 1000, is, return.is=FALSE) {
+essim <- function(phy, trait, nsim = 1000, es, return.es=FALSE) {
 	
 	require(ape)
 	require(mvtnorm)
 	
-	if(missing(is)) { # If inverse equal splits statistics not provided, calculate it
+	if(missing(es)) { # If inverse equal splits statistics not provided, calculate it
 		rootnode <- length(phy$tip.label) + 1
-		is <- numeric(length(phy$tip.label))
-		for (i in 1:length(is)){
+		es <- numeric(length(phy$tip.label))
+		for (i in 1:length(es)){
 			node <- i
 			index <- 1
 			qx <- 0
@@ -16,16 +16,16 @@ essim <- function(phy, trait, nsim = 1000, is, return.is=FALSE) {
 				qx <- qx + el* (1 / 2^(index-1))			
 				index <- index + 1
 			}
-			is[i] <- 1/qx
+			es[i] <- 1/qx
 		}		
-	names(is) <- phy$tip.label
+	names(es) <- phy$tip.label
 	}
 	
-	is <- log(is[phy$tip.label]) # log transform
+	es <- log(es[phy$tip.label]) # log transform
 	trait <- trait[phy$tip.label]
 	
-	# Pearson's correlation between splits statistic and trait
-	res <- cor.test(is, trait, method="pearson")
+	# Pearson's correlation between log inverse equal splits statistic and trait
+	res <- cor.test(es, trait, method="pearson")
 
 	# Fit Brownian motion model to get diffusion rate and root state estimates
 	vv <- vcv.phylo(as.phylo(phy))
@@ -38,7 +38,7 @@ essim <- function(phy, trait, nsim = 1000, is, return.is=FALSE) {
 	rownames(sims) <- rownames(vv)
 		
 	# Pearson's correlations of simulated datasets
-	sim.r <- sapply(1:nsim, function(x) cor.test(is[as.vector(rownames(sims))], sims[,x], method="pearson")$estimate)
+	sim.r <- sapply(1:nsim, function(x) cor.test(es[as.vector(rownames(sims))], sims[,x], method="pearson")$estimate)
 	
 	# Calculate the two-tailed p value
 	corr <- res$estimate
@@ -46,13 +46,13 @@ essim <- function(phy, trait, nsim = 1000, is, return.is=FALSE) {
 	lower <- (length(sim.r[sim.r <= corr])+1)/(nsim+1)
 	pval <- 2*min(c(upper,lower)) # Remove "2" for one-tailed
 
-	if(missing(return.is)) { # output just rho and p value
+	if(missing(return.es)) { # output just rho and p value
 		result <- as.vector(c(corr, pval))
 		names(result) <- c("rho", "P Value")
 		return(result)
-	} else { # output rho, p value, and list of is values
-		result <- as.vector(c(corr, pval, list(is)))
-		names(result) <- c("rho", "P Value", "is")
+	} else { # output rho, p value, and list of es values
+		result <- as.vector(c(corr, pval, list(es)))
+		names(result) <- c("rho", "P Value", "es")
 		return(result)		
 	}
 
