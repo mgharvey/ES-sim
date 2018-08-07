@@ -5,12 +5,6 @@ essim_geiger <- function(phy, trait, nsim = 1000, es, return.es=FALSE) {
 	require(caper)
 	require(geiger)
 	
-	#phy <- subtree
-	#trait <- trait
-	#nsim <- 1000
-	#es <- dx
-	#return.es=FALSE
-	
 	if(missing(es)) { # If inverse equal splits statistics not provided, calculate it
 		rootnode <- length(phy$tip.label) + 1
 		es <- numeric(length(phy$tip.label))
