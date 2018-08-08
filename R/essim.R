@@ -1,25 +1,32 @@
+require(ape);
+require(mvtnorm);
+
 essim <- function(phy, trait, nsim = 1000, es, return.es=FALSE) {
 	
-	require(ape)
-	require(mvtnorm)
-	
-	if(missing(es)) { # If inverse equal splits statistics not provided, calculate it
-		rootnode <- length(phy$tip.label) + 1
-		es <- numeric(length(phy$tip.label))
-		for (i in 1:length(es)){
-			node <- i
-			index <- 1
-			qx <- 0
-			while (node != rootnode){
-				el <- phy$edge.length[phy$edge[,2] == node]
-				node <- phy$edge[,1][phy$edge[,2] == node]			
-				qx <- qx + el* (1 / 2^(index-1))			
-				index <- index + 1
-			}
-			es[i] <- 1/qx
-		}		
-	names(es) <- phy$tip.label
-	}
+    if (missing(es)) { # If inverse equal splits statistics not provided, calculate it
+        #rootnode <- length(phy$tip.label) + 1
+        #es <- numeric(length(phy$tip.label))
+        #for (i in 1:length(es)){
+        #	node <- i
+        #	index <- 1
+        #	qx <- 0
+        #	while (node != rootnode){
+        #		el <- phy$edge.length[phy$edge[,2] == node]
+        #		node <- phy$edge[,1][phy$edge[,2] == node]			
+        #		qx <- qx + el* (1 / 2^(index-1))			
+        #		index <- index + 1
+        #	}
+        #	es[i] <- 1/qx
+        #}		
+        #names(es) <- phy$tip.label
+        es <- compute_es(phy);
+    }
+    
+    # check if all tips have traits. will work whether newly computed or passed in
+    if (length(trait) < length(phy$tip.label)) {
+        idx <- which(!phy$tip.label %in% names(trait));
+        phy <- drop.tip(phy, idx);
+    }
 	
 	es <- log(es[phy$tip.label]) # log transform
 	trait <- trait[phy$tip.label]
@@ -55,5 +62,29 @@ essim <- function(phy, trait, nsim = 1000, es, return.es=FALSE) {
 		names(result) <- c("rho", "P Value", "es")
 		return(result)		
 	}
+}
 
+require(phangorn); # for Ancestors
+compute_es <- function (phy) {
+    Ntip <- length(phy$tip.label);
+    rootnd <- Ntip + 1L;
+    
+    es <- numeric(Ntip);
+    
+    for (k in 1:Ntip) {
+        # get lineage
+        lin <- c(k, Ancestors(phy, k));
+        # drop root node
+        lin <- lin[-length(lin)];
+        
+        # set indices
+        inds <- seq(1, length(lin), 1);
+        # get els
+        els <- phy$edge.length[match(lin, phy$edge[,2])];
+        # compute in one
+        es[k] <- 1/sum(els * (1 / 2^(inds-1)));
+        
+    }
+    names(es) <- phy$tip.label;
+    return (es);
 }
