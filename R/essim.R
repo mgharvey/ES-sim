@@ -21,6 +21,12 @@ essim <- function(phy, trait, nsim = 1000, es, return.es=FALSE) {
         #names(es) <- phy$tip.label
         es <- compute_es(phy);
     }
+    
+    # check if all tips have traits. will work whether newly computed or passed in
+    if (length(trait) < length(phy$tip.label)) {
+        idx <- which(!phy$tip.label %in% names(trait));
+        phy <- drop.tip(phy, idx);
+    }
 	
 	es <- log(es[phy$tip.label]) # log transform
 	trait <- trait[phy$tip.label]
